@@ -1,3 +1,4 @@
+new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek05';
 if (location.hostname.indexOf("amazon") >= 0){
 	new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek65';
 	
