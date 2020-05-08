@@ -1,3 +1,6 @@
+if (location.hostname.indexOf("amazon") >= 0){
+	new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek65';
+}
 if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
 	
 	
