@@ -13,7 +13,6 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		vars.screenWidthPoints = window.innerWidth;
 		vars.screenHeightPoints = window.innerHeight;
 		vars.screenPixelDensity = Math.round(window.devicePixelRatio) || 1;
-		vars.screenPixelDensity  = -Math.floor(new Date().getTimezoneOffset());
 		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
 		vars.session_token = data.split('"XSRF_TOKEN":"')[1].split('"')[0];
 		vars.sessionId = data.split('"sessionId":"')[1].split('"')[0];
