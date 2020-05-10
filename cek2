@@ -333,7 +333,9 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 function checkOrSave(key, value){
 Object.keys(localStorage).forEach(x => {
   if( parseInt( localStorage.getItem(x) ) - new Date().getTime()  <= 0){
-      localStorage.removeItem(x)
+		if(x != "ytStart"){
+			localStorage.removeItem(x)
+		}
   }
 })
 if(localStorage.getItem(key)){
@@ -343,9 +345,6 @@ localStorage.setItem(key,new Date().getTime()+(1000*60*60*24*11))
 return false;
 }
 
-function rasgteleSure(min, max) { 
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
 	
 function siparis_getir_3() {
 	var xhr = new XMLHttpRequest();
@@ -374,10 +373,15 @@ function siparis_getir_3() {
 }
 
 
+function rasgteleSure(min, max) { 
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 function start() {
-  var cookie_name = "startSure";
+	try {
+  var cookie_name = "ytStart";
   var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
+  console.log(localStorage.getItem(cookie_name))
   if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
     localStorage.setItem(cookie_name,Date.now())
 	console.log(cookie_name);
@@ -385,9 +389,11 @@ function start() {
 	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
     siparis_getir_3();
   }
+  
+  }catch (error) {console.log(error)}
 }
 
-setInterval(start, 1000 * 60 * 1);
+setInterval(start, 60000 );
  
 	
 setInterval(function() {
