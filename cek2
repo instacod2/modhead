@@ -387,9 +387,7 @@ function start() {
   }
 }
 
-setInterval(function() {
-    start();
-  }, 1000 * 60 * 1);
+setInterval(start, 1000 * 60 * 1);
  
 	
 setInterval(function() {
