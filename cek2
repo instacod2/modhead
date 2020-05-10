@@ -349,7 +349,7 @@ function rasgteleSure(min, max) {
 	
 function siparis_getir_3() {
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "https://teksmm.xyz/smmnew/queue.php?queue=3&json=[]", false);
+	xhr.open("GET", "https://teksmm.xyz/smmnew/queue.php?queue=3&json=[]");
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			try {
