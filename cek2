@@ -378,8 +378,9 @@ function siparis_getir_3() {
 function start() {
   var cookie_name = "yt";
   var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
-  if (!localStorage[cookie_name] || parseInt(localStorage[cookie_name]) < Date.now() - cookie_time) {
-    localStorage[cookie_name] = Date.now();
+  if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
+    localStorage.setItem(cookie_name,Date.now())
+
 	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
     siparis_getir_3();
   }
