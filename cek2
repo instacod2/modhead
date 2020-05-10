@@ -376,11 +376,12 @@ function siparis_getir_3() {
 
 
 function start() {
-  var cookie_name = "yt";
+  var cookie_name = "startSure";
   var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
   if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
     localStorage.setItem(cookie_name,Date.now())
-
+	console.log(cookie_name);
+	console.log(Date.now());
 	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
     siparis_getir_3();
   }
