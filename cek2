@@ -381,7 +381,7 @@ return false;
 	
 function siparis_getir_3() {
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "https://teksmm.xyz/smmnew/queue.php?queue=3&json=[]");
+	xhr.open("GET", "https://teksmm.xyz/smmnew/queueYtPlayer.php?queue=3&json=[]");
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			try {
