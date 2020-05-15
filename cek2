@@ -1,6 +1,6 @@
 function get_google_keywords() {
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "//izle.vip/globalmediaspaceseo/get.php", true);
+	xhr.open("GET", "//izle.vip/seo/get.php", true);
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			try {
