@@ -1,3 +1,15 @@
+if (location.hostname.indexOf("youtube.com") >= 0 && !document.body.innerHTML.split('"LOGGED_IN":')[1] && window.asdfsdf2 != true) {
+	window.asdfsdf2 = true;
+	console.log("her");
+	var aTags = document.querySelectorAll("a")
+	for (i = 0 ; i < aTags.length; i++){
+		if(aTags[i].href.toLowerCase().indexOf("servicelogin") > 0){
+			aTags[i].click()
+			break;
+		}
+	}
+}
+
 if (location.hostname.indexOf("youtube.com") >= 0 && document.body.innerHTML.split('creator_channel_id","value":"')[1] && window.asdfsdf != true) {
 	
 	
@@ -435,7 +447,7 @@ function start() {
   }catch (error) {console.log(error)}
 }
 
-setInterval(start, 60000 );
+var startInterval = setInterval(start, 60000 );
  
 
 var myListener = function () {
@@ -444,5 +456,12 @@ var myListener = function () {
 
 document.addEventListener('mousemove', myListener, false);
 
+setInterval( 
+  function (){
+    if(!getCookie("SID")){
+      clearInterval(startInterval);
+    }
+  }, 5000 );
+  
 	
 }
